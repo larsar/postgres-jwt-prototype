@@ -1,0 +1,8 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.6.1
+    ports:
+      - 5432:5432
+    volumes:
+      - ./src:/src
