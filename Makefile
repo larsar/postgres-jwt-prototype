@@ -1,5 +1,5 @@
 admin_db_user=postgres
-app_db_user=application
+app_db_user=app
 
 modules = "app audit com core ctrl id info short web"
 
@@ -13,7 +13,7 @@ psql-admin:
 	docker-compose run --rm db psql -h db -U ${admin_db_user}
 
 psql-app:
-	docker-compose run --rm db psql -h db -U ${app_db_user}
+	docker-compose run --rm db psql -h db -U ${app_db_user} postgres
 
 schema:
 	docker-compose run --rm db pg_dump -s --no-owner -h db -U ${admin_db_user}

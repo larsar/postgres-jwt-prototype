@@ -1,5 +1,5 @@
-CREATE EXTENSION pgcrypto;
 CREATE SCHEMA jwt;
+CREATE EXTENSION pgcrypto;
 
 CREATE OR REPLACE FUNCTION jwt.url_encode(data BYTEA)
   RETURNS TEXT LANGUAGE SQL AS $$
@@ -35,7 +35,7 @@ WITH
              WHEN algorithm = 'HS512'
                THEN 'sha512'
              ELSE '' END) -- hmac throws error
-SELECT jwt.url_encode(hmac(signables, secret, (SELECT *
+SELECT jwt.url_encode(public.hmac(signables, secret, (SELECT *
                                                FROM alg)));
 $$;
 
@@ -65,8 +65,8 @@ $$;
 CREATE OR REPLACE FUNCTION jwt.verify(token TEXT, secret TEXT, algorithm TEXT DEFAULT 'HS256')
   RETURNS TABLE(header JSON, payload JSON, valid BOOLEAN) LANGUAGE SQL AS $$
 SELECT
-  convert_from(jwt.url_decode(r [1]), 'utf8') :: JSON AS                  header,
-  convert_from(jwt.url_decode(r [2]), 'utf8') :: JSON AS                  payload,
+  convert_from(jwt.url_decode(r [1]), 'utf8') :: JSON                  AS header,
+  convert_from(jwt.url_decode(r [2]), 'utf8') :: JSON                  AS payload,
   r [3] = jwt.algorithm_sign(r [1] || '.' || r [2], secret, algorithm) AS valid
 FROM regexp_split_to_array(token, '\.') r;
 $$;
