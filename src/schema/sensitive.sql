@@ -14,18 +14,21 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-  sharedSecret TEXT := (SELECT shared_secret
-                        FROM sensitive.token_secret
-                        LIMIT 1);
+  _shared_secret TEXT := (SELECT shared_secret
+                          FROM sensitive.token_secret
+                          LIMIT 1);
 
 BEGIN
-  -- Validate token
-  -- Extract org_no
-  -- Run select
-
+  WITH verifiedToken AS (SELECT *
+                         FROM jwt.verify(token, _shared_secret)),
+      verified_org_no AS ( SELECT payload ->> 'orgNo'
+                           FROM verifiedToken
+                           WHERE VALID IS TRUE )
   SELECT d.secret
   FROM sensitive.data d
-  WHERE org_no = _org_no
+  WHERE org_no = (SELECT *
+                  FROM verified_org_no) AND org_no IS NOT NULL
   INTO secret;
+
 END;
 $$;

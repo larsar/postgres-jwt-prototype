@@ -10,7 +10,7 @@ down:
 	docker-compose down
 
 psql-admin:
-	docker-compose run --rm db psql -h db -U ${admin_db_user}
+	docker-compose run --rm db psql -h db -U ${admin_db_user} postgres
 
 psql-app:
 	docker-compose run --rm db psql -h db -U ${app_db_user} postgres
@@ -42,12 +42,3 @@ _reset:
 	docker-compose down &&\
 	docker-compose up -d &&\
 	sleep 5
-
-db-reset: _db-reset migrate seed
-
-_db-reset:
-	docker-compose	stop db &&\
-	docker-compose	rm -f db &&\
-	docker-compose up -d db &&\
-	sleep 5
-
